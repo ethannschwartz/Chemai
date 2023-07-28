@@ -10,13 +10,14 @@ use Inertia\Response;
 
 class CompoundController extends Controller
 {
-
-    public function search(Request $request, $text)
+    /**
+     * @param Request $request
+     * @param $text
+     * @return Response
+     */
+    public function show(Request $request, $text): Response
     {
         $response = Http::get("https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/compound/{$text}/json?limit=6");
-        return Inertia::render('Dashboard', [
-            'recent_compounds' => Auth::user()->compounds()->orderBy('created_at', 'desc')->limit(4)->get(),
-            'search_results' => $response->json(),
-        ]);
+        return $response->json();
     }
 }

@@ -28,24 +28,28 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard', [
-        'recent_compounds' => Auth::user()->compounds()->orderBy('created_at', 'desc')->limit(4)->get(),
-        'search_results' => [],
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard', [
+            'recent_compounds' => Auth::user()->compounds()->orderBy('created_at', 'desc')->limit(4)->get(),
+            'search_results' => [],
+        ]);
+    })->name('dashboard');
 
-    Route::get('/compound/{compound:id}', [ChemicalStructureController::class, 'show'])->name('compound.show');
+    Route::name('profile.')->prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    });
 
-    Route::get('/search/{text}', [CompoundController::class, 'search'])->name('search');
+    Route::name('compound.')->prefix('compound')->group(function () {
+        Route::get('/{compound:id}', [ChemicalStructureController::class, 'show'])->name('show');
+    });
+
+    Route::name('smile.')->prefix('smile')->group(function () {
+        Route::post('/{text}', [ChemicalStructureController::class, 'store'])->name('store');
+        Route::delete('/{text}', [ChemicalStructureController::class, 'destroy'])->name('destroy');
+    });
 });
-
-Route::post('/smile/{text}', [ChemicalStructureController::class, 'store'])->name('store');
-Route::delete('/smile/{text}', [ChemicalStructureController::class, 'destroy'])->name('destroy');
 
 require __DIR__.'/auth.php';

@@ -105,6 +105,7 @@ const textInput = ref('');
 const searchInput = ref('');
 const smilesImage = ref('');
 const route = inject('route');
+const api = inject('api');
 
 function convertTextToSMILESImage() {
     router.post(route('store', textInput.value));
@@ -115,11 +116,9 @@ function deleteSmile(smile){
     router.delete(route('destroy', smile));
 }
 
-const searchCompound = () => {
-    router.get(route('search', searchInput.value), {
-        preserveState: true,
-        preserveScroll: true,
-    });
+const searchCompound = async () => {
+    let response = await axios.get('/search/show/'+searchInput.value);
+    console.log('response.data', response.data);
 };
 
 </script>

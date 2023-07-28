@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      php: 8.1
+      nodejs: 9.6.7
+    commands:
+      - echo Installing dependencies...
+      - composer install --optimize-autoloader --no-dev
+      - npm install
+      - npm run build
+  pre_build:
+    commands:
+      - echo Pre-build steps...
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Compiling the Laravel application...
+  post_build:
+    commands:
+      - echo Build completed on `date`
+
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: yes
