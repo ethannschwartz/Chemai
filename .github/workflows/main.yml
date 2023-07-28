@@ -1,0 +1,53 @@
+name: Laravel Vue SPA Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+        
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+      
+    - name: Run tests
+      run: phpunit
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+        
+    - name: Install NPM dependencies
+      run: npm install
+      
+    - name: Build Vue App
+      run: npm run build
+      
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: 3.84.165.103
+        username: ec2-user
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd <your-project-directory>
+          git pull
+          composer install --prefer-dist --no-progress
+          npm install
+          npm run build
+          php artisan migrate --force
